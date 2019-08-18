@@ -3,7 +3,7 @@
 <title>Static Call Graph - [Dehumidifier_20190807\Dehumidifier_20190807.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image Dehumidifier_20190807\Dehumidifier_20190807.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Fri Aug 09 16:03:16 2019
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060750: Last Updated: Sun Aug 18 18:26:17 2019
 <BR><P>
 <H3>Maximum Stack Usage =        288 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1391,7 +1391,7 @@ Global Symbols
 <BR>[Address Reference Count : 1]<UL><LI> freertos.o(.constdata)
 </UL>
 <P><STRONG><a name="[63]"></a>TaskTwoFunc</STRONG> (Thumb, 18 bytes, Stack size 0 bytes, freertos.o(i.TaskTwoFunc))
-<BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = TaskTwoFunc &rArr; csro_master_cps_init &rArr; osSemaphoreCreate &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
+<BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = TaskTwoFunc &rArr; csro_master_cps_read_task &rArr; osMutexRelease &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[e2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osDelay
 <LI><a href="#[ec]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;csro_master_cps_read_task
@@ -1459,8 +1459,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[64]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TaskThreeFunc
 </UL>
 
-<P><STRONG><a name="[eb]"></a>csro_master_cps_init</STRONG> (Thumb, 70 bytes, Stack size 24 bytes, mb_master_cps.o(i.csro_master_cps_init))
-<BR><BR>[Stack]<UL><LI>Max Depth = 144<LI>Call Chain = csro_master_cps_init &rArr; osSemaphoreCreate &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
+<P><STRONG><a name="[eb]"></a>csro_master_cps_init</STRONG> (Thumb, 86 bytes, Stack size 32 bytes, mb_master_cps.o(i.csro_master_cps_init))
+<BR><BR>[Stack]<UL><LI>Max Depth = 152<LI>Call Chain = csro_master_cps_init &rArr; osSemaphoreCreate &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osSemaphoreCreate
 <LI><a href="#[f2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osMutexCreate
@@ -1468,8 +1468,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[63]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TaskTwoFunc
 </UL>
 
-<P><STRONG><a name="[ec]"></a>csro_master_cps_read_task</STRONG> (Thumb, 50 bytes, Stack size 8 bytes, mb_master_cps.o(i.csro_master_cps_read_task))
-<BR><BR>[Stack]<UL><LI>Max Depth = 136<LI>Call Chain = csro_master_cps_read_task &rArr; osMutexRelease &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
+<P><STRONG><a name="[ec]"></a>csro_master_cps_read_task</STRONG> (Thumb, 226 bytes, Stack size 104 bytes, mb_master_cps.o(i.csro_master_cps_read_task))
+<BR><BR>[Stack]<UL><LI>Max Depth = 232<LI>Call Chain = csro_master_cps_read_task &rArr; osMutexRelease &rArr; xQueueGenericSend &rArr; xTaskResumeAll &rArr; xTaskIncrementTick
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osMutexWait
 <LI><a href="#[f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;osMutexRelease

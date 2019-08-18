@@ -2,7 +2,9 @@
 
 modbus_master master_cps;
 static osSemaphoreId uart_idle_sem;
+static osSemaphoreId write_cps_sem;
 static osMutexId uart_source_mut;
+static osTimerId write_cps_tim;
 
 void master_cps_set_tx(void)
 {
@@ -50,9 +52,15 @@ void csro_master_cps_init(UART_HandleTypeDef *uart)
 {
     osSemaphoreDef(uart_idle_semaphore);
     uart_idle_sem = osSemaphoreCreate(osSemaphore(uart_idle_semaphore), 1);
+
+    osSemaphoreDef(write_cps_semaphore);
+    write_cps_sem = osSemaphoreCreate(osSemaphore(write_cps_semaphore), 1);
+
     osMutexDef(uart_source_mutex);
     uart_source_mut = osMutexCreate(osMutex(uart_source_mutex));
+
     master_cps.uart = uart;
+    master_cps.slave_id = 0x01;
     master_cps.master_set_tx = master_cps_set_tx;
     master_cps.master_set_rx = master_cps_set_rx;
     master_cps.master_uart_idle = master_cps_uart_idle;
@@ -61,15 +69,94 @@ void csro_master_cps_init(UART_HandleTypeDef *uart)
     __HAL_UART_ENABLE_IT(master_cps.uart, UART_IT_IDLE);
 }
 
-uint16_t cps_result[10];
+void csro_master_cps_write_task(void)
+{
+    if (osSemaphoreWait(write_cps_sem, osWaitForever) == osOK)
+    {
+        if (osMutexWait(uart_source_mut, osWaitForever) == osOK)
+        {
+            for (uint8_t i = 0; i < 4; i++)
+            {
+                if (sys_regs.holding_flags[0x1E + i] != 0)
+                {
+                    master_cps.write_addr = 0x1E + i;
+                    master_cps.write_qty = 1;
+                    master_write_single_holding_reg(&master_cps, &sys_regs.holdings[0x1E + i]);
+                    sys_regs.holding_flags[0x1E + i] = 0;
+                }
+            }
+            for (uint8_t i = 0; i < 4; i++)
+            {
+                if (sys_regs.holding_flags[0x36 + i] != 0)
+                {
+                    master_cps.write_addr = 0x36 + i;
+                    master_cps.write_qty = 1;
+                    master_write_single_holding_reg(&master_cps, &sys_regs.holdings[0x36 + i]);
+                    sys_regs.holding_flags[0x36 + i] = 0;
+                }
+            }
+            if (sys_regs.holdings[0x51] != 0)
+            {
+                master_cps.write_addr = 0x51;
+                master_cps.write_qty = 3;
+                master_write_single_holding_reg(&master_cps, &sys_regs.holdings[51]);
+                sys_regs.holding_flags[0x51] = 0;
+            }
+            osMutexRelease(uart_source_mut);
+        }
+    }
+}
+
 void csro_master_cps_read_task(void)
 {
     if (osMutexWait(uart_source_mut, osWaitForever) == osOK)
     {
-        master_cps.slave_id = 0x10;
-        master_cps.read_addr = 0x10;
-        master_cps.read_qty = 10;
-        master_read_holding_regs(&master_cps, cps_result);
+        uint16_t result[35];
+        master_cps.read_addr = 0x00;
+        master_cps.read_qty = 30;
+        if (master_read_holding_regs(&master_cps, result) == 1)
+        {
+            for (uint8_t i = 0; i < 30; i++)
+            {
+                sys_regs.inputs[16 + i] = result[i];
+            }
+        }
+        osMutexRelease(uart_source_mut);
+    }
+
+    if (osMutexWait(uart_source_mut, osWaitForever) == osOK)
+    {
+        uint16_t result[5];
+        master_cps.read_addr = 0x1E;
+        master_cps.read_qty = 4;
+        if (master_read_holding_regs(&master_cps, result) == 1)
+        {
+            for (uint8_t i = 0; i < 4; i++)
+            {
+                if (sys_regs.holding_flags[30 + i] == 0)
+                {
+                    sys_regs.holdings[30 + i] = result[i];
+                }
+            }
+        }
+        osMutexRelease(uart_source_mut);
+    }
+
+    if (osMutexWait(uart_source_mut, osWaitForever) == osOK)
+    {
+        uint16_t result[5];
+        master_cps.read_addr = 0x36;
+        master_cps.read_qty = 4;
+        if (master_read_holding_regs(&master_cps, result) == 1)
+        {
+            for (uint8_t i = 0; i < 4; i++)
+            {
+                if (sys_regs.holding_flags[54 + i] == 0)
+                {
+                    sys_regs.holdings[54 + i] = result[i];
+                }
+            }
+        }
         osMutexRelease(uart_source_mut);
     }
 }

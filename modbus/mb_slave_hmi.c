@@ -106,7 +106,7 @@ static void slave_hmi_init_regs(void)
 
 void csro_slave_hmi_init(UART_HandleTypeDef *uart)
 {
-    
+
     osSemaphoreDef(uart_msg_semaphore);
     uart_msg_sem = osSemaphoreCreate(osSemaphore(uart_msg_semaphore), 1);
     slave_hmi.uart = uart;

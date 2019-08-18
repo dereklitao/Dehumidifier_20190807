@@ -61,12 +61,11 @@ void csro_master_aqi_init(UART_HandleTypeDef *uart)
     __HAL_UART_ENABLE_IT(master_aqi.uart, UART_IT_IDLE);
 }
 
-
 void csro_master_aqi_read_task(void)
 {
     if (osMutexWait(uart_source_mut, osWaitForever) == osOK)
     {
-			  uint16_t result[10];
+        uint16_t result[10];
         master_aqi.slave_id = 0x10;
         master_aqi.read_addr = 0x10;
         master_aqi.read_qty = 8;
