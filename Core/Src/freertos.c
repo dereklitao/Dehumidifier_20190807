@@ -25,7 +25,7 @@
 #include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+/* USER CODE BEGIN Includes */     
 #include "csro_common.h"
 #include "gpio.h"
 #include "dac.h"
@@ -53,24 +53,24 @@
 /* USER CODE BEGIN Variables */
 uint32_t adc_data[100];
 /* USER CODE END Variables */
-osThreadId TaskOneHandle;
-osThreadId TaskTwoHandle;
-osThreadId TaskThreeHandle;
-osThreadId TaskFourHandle;
-osThreadId TaskFiveHandle;
-osThreadId TaskSixHandle;
+osThreadId Task01Handle;
+osThreadId Task02Handle;
+osThreadId Task03Handle;
+osThreadId Task04Handle;
+osThreadId Task05Handle;
+osThreadId Task06Handle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
 /* USER CODE END FunctionPrototypes */
 
-void TaskOneFunc(void const *argument);
-void TaskTwoFunc(void const *argument);
-void TaskThreeFunc(void const *argument);
-void TaskFourFunc(void const *argument);
-void TaskFiveFunc(void const *argument);
-void TaskSixFunc(void const *argument);
+void Task01_cps_write_task(void const * argument);
+void Task02_cps_read_task(void const * argument);
+void Task03_hmi_wait_cmd_task(void const * argument);
+void Task04_aqi_read_task(void const * argument);
+void Task05_pwm_adc_dac_gpio_task(void const * argument);
+void Task06_misc_func_task(void const * argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -79,8 +79,7 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
   * @param  None
   * @retval None
   */
-void MX_FREERTOS_Init(void)
-{
+void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
@@ -102,188 +101,150 @@ void MX_FREERTOS_Init(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of TaskOne */
-  osThreadDef(TaskOne, TaskOneFunc, osPriorityHigh, 0, 256);
-  TaskOneHandle = osThreadCreate(osThread(TaskOne), NULL);
+  /* definition and creation of Task01 */
+  osThreadDef(Task01, Task01_cps_write_task, osPriorityHigh, 0, 256);
+  Task01Handle = osThreadCreate(osThread(Task01), NULL);
 
-  /* definition and creation of TaskTwo */
-  osThreadDef(TaskTwo, TaskTwoFunc, osPriorityAboveNormal, 0, 256);
-  TaskTwoHandle = osThreadCreate(osThread(TaskTwo), NULL);
+  /* definition and creation of Task02 */
+  osThreadDef(Task02, Task02_cps_read_task, osPriorityAboveNormal, 0, 256);
+  Task02Handle = osThreadCreate(osThread(Task02), NULL);
 
-  /* definition and creation of TaskThree */
-  osThreadDef(TaskThree, TaskThreeFunc, osPriorityNormal, 0, 256);
-  TaskThreeHandle = osThreadCreate(osThread(TaskThree), NULL);
+  /* definition and creation of Task03 */
+  osThreadDef(Task03, Task03_hmi_wait_cmd_task, osPriorityNormal, 0, 256);
+  Task03Handle = osThreadCreate(osThread(Task03), NULL);
 
-  /* definition and creation of TaskFour */
-  osThreadDef(TaskFour, TaskFourFunc, osPriorityBelowNormal, 0, 256);
-  TaskFourHandle = osThreadCreate(osThread(TaskFour), NULL);
+  /* definition and creation of Task04 */
+  osThreadDef(Task04, Task04_aqi_read_task, osPriorityBelowNormal, 0, 256);
+  Task04Handle = osThreadCreate(osThread(Task04), NULL);
 
-  /* definition and creation of TaskFive */
-  osThreadDef(TaskFive, TaskFiveFunc, osPriorityLow, 0, 256);
-  TaskFiveHandle = osThreadCreate(osThread(TaskFive), NULL);
+  /* definition and creation of Task05 */
+  osThreadDef(Task05, Task05_pwm_adc_dac_gpio_task, osPriorityLow, 0, 256);
+  Task05Handle = osThreadCreate(osThread(Task05), NULL);
 
-  /* definition and creation of TaskSix */
-  osThreadDef(TaskSix, TaskSixFunc, osPriorityIdle, 0, 256);
-  TaskSixHandle = osThreadCreate(osThread(TaskSix), NULL);
+  /* definition and creation of Task06 */
+  osThreadDef(Task06, Task06_misc_func_task, osPriorityIdle, 0, 256);
+  Task06Handle = osThreadCreate(osThread(Task06), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
+
 }
 
-/* USER CODE BEGIN Header_TaskOneFunc */
+/* USER CODE BEGIN Header_Task01_cps_write_task */
 /**
-  * @brief  Function implementing the TaskOne thread.
+  * @brief  Function implementing the Task01 thread.
   * @param  argument: Not used 
   * @retval None
   */
-/* USER CODE END Header_TaskOneFunc */
-void TaskOneFunc(void const *argument)
+/* USER CODE END Header_Task01_cps_write_task */
+void Task01_cps_write_task(void const * argument)
 {
-  /* USER CODE BEGIN TaskOneFunc */
+    
+    
+    
+    
+    
+    
+    
+
+  /* USER CODE BEGIN Task01_cps_write_task */
+  csro_master_cps_init(&huart3);
+  /* Infinite loop */
+  for (;;)
+  {
+    csro_master_cps_write_task();
+  }
+  /* USER CODE END Task01_cps_write_task */
+}
+
+/* USER CODE BEGIN Header_Task02_cps_read_task */
+/**
+* @brief Function implementing the Task02 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Task02_cps_read_task */
+void Task02_cps_read_task(void const * argument)
+{
+  /* USER CODE BEGIN Task02_cps_read_task */
+  /* Infinite loop */
+  for (;;)
+  {
+    osDelay(200);
+    csro_master_cps_read_task();
+  }
+  /* USER CODE END Task02_cps_read_task */
+}
+
+/* USER CODE BEGIN Header_Task03_hmi_wait_cmd_task */
+/**
+* @brief Function implementing the Task03 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Task03_hmi_wait_cmd_task */
+void Task03_hmi_wait_cmd_task(void const * argument)
+{
+  /* USER CODE BEGIN Task03_hmi_wait_cmd_task */
   csro_slave_hmi_init(&huart2);
   /* Infinite loop */
   for (;;)
   {
     csro_slave_hmi_wait_cmd();
   }
-  /* USER CODE END TaskOneFunc */
+  /* USER CODE END Task03_hmi_wait_cmd_task */
 }
 
-/* USER CODE BEGIN Header_TaskTwoFunc */
+/* USER CODE BEGIN Header_Task04_aqi_read_task */
 /**
-* @brief Function implementing the TaskTwo thread.
+* @brief Function implementing the Task04 thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_TaskTwoFunc */
-void TaskTwoFunc(void const *argument)
+/* USER CODE END Header_Task04_aqi_read_task */
+void Task04_aqi_read_task(void const * argument)
 {
-  /* USER CODE BEGIN TaskTwoFunc */
-  csro_master_cps_init(&huart3);
-  /* Infinite loop */
-  for (;;)
-  {
-    osDelay(100);
-    csro_master_cps_read_task();
-  }
-  /* USER CODE END TaskTwoFunc */
-}
-
-/* USER CODE BEGIN Header_TaskThreeFunc */
-/**
-* @brief Function implementing the TaskThree thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_TaskThreeFunc */
-void TaskThreeFunc(void const *argument)
-{
-  /* USER CODE BEGIN TaskThreeFunc */
+  /* USER CODE BEGIN Task04_aqi_read_task */
   csro_master_aqi_init(&huart1);
-
-  /* Infinite loop */
-  for (;;)
-  {
-    osDelay(100);
-    csro_master_aqi_read_task();
-  }
-  /* USER CODE END TaskThreeFunc */
-}
-
-/* USER CODE BEGIN Header_TaskFourFunc */
-/**
-* @brief Function implementing the TaskFour thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_TaskFourFunc */
-void TaskFourFunc(void const *argument)
-{
-  /* USER CODE BEGIN TaskFourFunc */
-
-  /* Infinite loop */
-  for (;;)
-  {
-    osDelay(50);
-  }
-  /* USER CODE END TaskFourFunc */
-}
-
-/* USER CODE BEGIN Header_TaskFiveFunc */
-/**
-* @brief Function implementing the TaskFive thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_TaskFiveFunc */
-void TaskFiveFunc(void const *argument)
-{
-  /* USER CODE BEGIN TaskFiveFunc */
-  HAL_DAC_Start(&hdac, DAC_CHANNEL_1);
-  HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 4095);
-  HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
-  HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, 4095);
-  HAL_ADCEx_Calibration_Start(&hadc1);
-  HAL_ADC_Start_DMA(&hadc1, adc_data, 100);
   /* Infinite loop */
   for (;;)
   {
     osDelay(200);
-    float sum[10] = {0};
-    float voltage[10] = {0};
-    float vadc = 0;
-    for (uint8_t i = 0; i < 10; i++)
-    {
-      for (uint8_t j = 0; j < 10; j++)
-      {
-        sum[j] += adc_data[i * 10 + j];
-      }
-    }
-    vadc = 1.225 * 4096.0 / (sum[9] / 10.0);
-    for (uint8_t i = 0; i < 10; i++)
-    {
-      voltage[i] = (sum[i] / 10.0) * vadc / 4096.0;
-    }
-    for (uint8_t i = 0; i < 4; i++)
-    {
-      float ntc_res = voltage[3 - i] * 10.0 / (vadc - voltage[3 - i]);
-      sys_regs.inputs[i] = (int16_t)(Csro_Calculate_ntc3950_Temperature_from_Resvalue(ntc_res) * 10.0);
-    }
-    for (uint8_t i = 0; i < 2; i++)
-    {
-      float rhi_temp_res = voltage[i * 2 + 5] * 10.0 / (vadc - voltage[i * 2 + 5]);
-      sys_regs.inputs[i * 2 + 4] = (int16_t)(Csro_Calculate_ntc3380_Temperature_from_Resvalue(rhi_temp_res) * 10.0);
-      sys_regs.inputs[i * 2 + 5] = (int16_t)(voltage[i * 2 + 4] / 3.3 * 100 * 10);
-    }
+    csro_master_aqi_read_task();
   }
-  /* USER CODE END TaskFiveFunc */
+  /* USER CODE END Task04_aqi_read_task */
 }
 
-/* USER CODE BEGIN Header_TaskSixFunc */
+/* USER CODE BEGIN Header_Task05_pwm_adc_dac_gpio_task */
 /**
-* @brief Function implementing the TaskSix thread.
+* @brief Function implementing the Task05 thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_TaskSixFunc */
-void TaskSixFunc(void const *argument)
+/* USER CODE END Header_Task05_pwm_adc_dac_gpio_task */
+void Task05_pwm_adc_dac_gpio_task(void const * argument)
 {
-  /* USER CODE BEGIN TaskSixFunc */
-  uint8_t led_count = 0;
+  /* USER CODE BEGIN Task05_pwm_adc_dac_gpio_task */
+  HAL_DAC_Start(&hdac, DAC_CHANNEL_1);
+  HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 4095);
+  HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
+  HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, 4095);
+
+  HAL_ADCEx_Calibration_Start(&hadc1);
+  HAL_ADC_Start_DMA(&hadc1, adc_data, 100);
+
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
   HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_4);
+
+  uint8_t adc_count = 0;
   /* Infinite loop */
   for (;;)
   {
     osDelay(50);
-    led_count = (led_count + 1) % 10;
-    if (led_count == 0)
-    {
-      HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-    }
+
     TIM2->CCR1 = sys_regs.holdings[3];
     TIM2->CCR2 = sys_regs.holdings[2];
     TIM2->CCR3 = sys_regs.holdings[1];
@@ -302,8 +263,58 @@ void TaskSixFunc(void const *argument)
     HAL_GPIO_WritePin(DR2_GPIO_Port, DR2_Pin, sys_regs.coils[5] == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
     HAL_GPIO_WritePin(DR3_GPIO_Port, DR3_Pin, sys_regs.coils[6] == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
     HAL_GPIO_WritePin(DR4_GPIO_Port, DR4_Pin, sys_regs.coils[7] == 0 ? GPIO_PIN_RESET : GPIO_PIN_SET);
+
+    adc_count = (adc_count + 1) % 4;
+    if (adc_count == 1)
+    {
+      float sum[10] = {0};
+      float voltage[10] = {0};
+      float vadc = 0;
+      for (uint8_t i = 0; i < 10; i++)
+      {
+        for (uint8_t j = 0; j < 10; j++)
+        {
+          sum[j] += adc_data[i * 10 + j];
+        }
+      }
+      vadc = 1.225 * 4096.0 / (sum[9] / 10.0);
+      for (uint8_t i = 0; i < 10; i++)
+      {
+        voltage[i] = (sum[i] / 10.0) * vadc / 4096.0;
+      }
+      for (uint8_t i = 0; i < 4; i++)
+      {
+        float ntc_res = voltage[3 - i] * 10.0 / (vadc - voltage[3 - i]);
+        sys_regs.inputs[i] = (int16_t)(Csro_Calculate_ntc3950_Temperature_from_Resvalue(ntc_res) * 10.0);
+      }
+      for (uint8_t i = 0; i < 2; i++)
+      {
+        float rhi_temp_res = voltage[i * 2 + 5] * 10.0 / (vadc - voltage[i * 2 + 5]);
+        sys_regs.inputs[i * 2 + 4] = (int16_t)(Csro_Calculate_ntc3380_Temperature_from_Resvalue(rhi_temp_res) * 10.0);
+        sys_regs.inputs[i * 2 + 5] = (int16_t)(voltage[i * 2 + 4] / 3.3 * 100 * 10);
+      }
+    }
   }
-  /* USER CODE END TaskSixFunc */
+  /* USER CODE END Task05_pwm_adc_dac_gpio_task */
+}
+
+/* USER CODE BEGIN Header_Task06_misc_func_task */
+/**
+* @brief Function implementing the Task06 thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_Task06_misc_func_task */
+void Task06_misc_func_task(void const * argument)
+{
+  /* USER CODE BEGIN Task06_misc_func_task */
+  /* Infinite loop */
+  for (;;)
+  {
+    osDelay(500);
+    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  }
+  /* USER CODE END Task06_misc_func_task */
 }
 
 /* Private application code --------------------------------------------------*/

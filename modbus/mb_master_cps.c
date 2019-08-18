@@ -39,13 +39,30 @@ uint8_t master_cps_send_receive(uint16_t timeout)
     if (osSemaphoreWait(uart_idle_sem, timeout) == osOK)
     {
         master_cps.status = 1;
+        sys_regs.discs[0x0B] = 1;
     }
     else
     {
         master_cps.status = 0;
+        sys_regs.discs[0x0B] = 0;
     }
     HAL_UART_DMAStop(master_cps.uart);
     return master_cps.status;
+}
+
+void master_write_cps_tim_callback(void const *argument)
+{
+    static uint16_t count = 0;
+    sys_regs.holding_flags[0x51] = 1;
+    sys_regs.holdings[0x51] = sys_regs.inputs[0x04];
+    sys_regs.holdings[0x52] = sys_regs.inputs[0x03];
+    sys_regs.holdings[0x53] = count++;
+    osSemaphoreRelease(write_cps_sem);
+}
+
+void master_cps_trigger_write(void)
+{
+    osSemaphoreRelease(write_cps_sem);
 }
 
 void csro_master_cps_init(UART_HandleTypeDef *uart)
@@ -59,12 +76,18 @@ void csro_master_cps_init(UART_HandleTypeDef *uart)
     osMutexDef(uart_source_mutex);
     uart_source_mut = osMutexCreate(osMutex(uart_source_mutex));
 
+    osTimerDef(write_cps_timer, master_write_cps_tim_callback);
+    write_cps_tim = osTimerCreate(osTimer(write_cps_timer), osTimerPeriodic, NULL);
+
+    osTimerStart(write_cps_tim, 2500);
+
     master_cps.uart = uart;
     master_cps.slave_id = 0x01;
     master_cps.master_set_tx = master_cps_set_tx;
     master_cps.master_set_rx = master_cps_set_rx;
     master_cps.master_uart_idle = master_cps_uart_idle;
     master_cps.master_send_receive = master_cps_send_receive;
+    master_cps.master_trigger_write = master_cps_trigger_write;
 
     __HAL_UART_ENABLE_IT(master_cps.uart, UART_IT_IDLE);
 }
@@ -99,7 +122,7 @@ void csro_master_cps_write_task(void)
             {
                 master_cps.write_addr = 0x51;
                 master_cps.write_qty = 3;
-                master_write_single_holding_reg(&master_cps, &sys_regs.holdings[51]);
+                master_write_multi_holding_regs(&master_cps, &sys_regs.holdings[0x51]);
                 sys_regs.holding_flags[0x51] = 0;
             }
             osMutexRelease(uart_source_mut);

@@ -37,10 +37,12 @@ uint8_t master_aqi_send_receive(uint16_t timeout)
     if (osSemaphoreWait(uart_idle_sem, timeout) == osOK)
     {
         master_aqi.status = 1;
+        sys_regs.discs[0x0A] = 1;
     }
     else
     {
         master_aqi.status = 0;
+        sys_regs.discs[0x0A] = 0;
     }
     HAL_UART_DMAStop(master_aqi.uart);
     return master_aqi.status;

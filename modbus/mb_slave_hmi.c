@@ -64,6 +64,7 @@ void slave_hmi_write_coils_callback(void)
 
 void slave_hmi_write_holdings_callback(void)
 {
+    uint8_t master_cps_need_write = 0;
     if (slave_hmi.func_code == MODBUS_FC_WRITE_SINGLE_REGISTER)
     {
         if (slave_hmi.write_addr <= 3)
@@ -73,6 +74,12 @@ void slave_hmi_write_holdings_callback(void)
             {
                 slave_hmi.regs->holdings[slave_hmi.write_addr] = value;
             }
+        }
+        else if ((slave_hmi.write_addr >= 0x1E) && (slave_hmi.write_addr <= 0x39))
+        {
+            slave_hmi.regs->holding_flags[slave_hmi.write_addr] = 1;
+            slave_hmi.regs->holdings[slave_hmi.write_addr] = slave_hmi.rx_buf[4] * 256 + slave_hmi.rx_buf[5];
+            master_cps_need_write = 1;
         }
     }
     else if (slave_hmi.func_code == MODBUS_FC_WRITE_MULTIPLE_REGISTERS)
@@ -87,17 +94,22 @@ void slave_hmi_write_holdings_callback(void)
                     slave_hmi.regs->holdings[slave_hmi.write_addr + slave_hmi.i] = value;
                 }
             }
+            else if ((slave_hmi.write_addr + slave_hmi.i) >= 0x1E && (slave_hmi.write_addr + slave_hmi.i) <= 0x39)
+            {
+                slave_hmi.regs->holding_flags[slave_hmi.write_addr + slave_hmi.i] = 1;
+                slave_hmi.regs->holdings[slave_hmi.write_addr + slave_hmi.i] = slave_hmi.rx_buf[7 + 2 * slave_hmi.i] * 256 + slave_hmi.rx_buf[8 + 2 * slave_hmi.i];
+                master_cps_need_write = 1;
+            }
         }
+    }
+    if (master_cps_need_write == 1)
+    {
+        master_cps.master_trigger_write();
     }
 }
 
 static void slave_hmi_init_regs(void)
 {
-    slave_hmi.regs->coils[0] = 1;
-    slave_hmi.regs->coils[2] = 1;
-    slave_hmi.regs->coils[4] = 1;
-    slave_hmi.regs->coils[6] = 1;
-
     slave_hmi.regs->holdings[0] = 500;
     slave_hmi.regs->holdings[1] = 500;
     slave_hmi.regs->holdings[2] = 500;

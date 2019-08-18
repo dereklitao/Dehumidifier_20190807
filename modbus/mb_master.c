@@ -168,3 +168,35 @@ uint8_t master_write_single_holding_reg(modbus_master *master, uint16_t *value)
     }
     return 0;
 }
+
+uint8_t master_write_multi_holding_regs(modbus_master *master, uint16_t *value)
+{
+    master->func_code = MODBUS_FC_WRITE_MULTIPLE_REGISTERS;
+    master->tx_len = 0;
+    master->tx_buf[master->tx_len++] = master->slave_id;
+    master->tx_buf[master->tx_len++] = master->func_code;
+    master->tx_buf[master->tx_len++] = master->write_addr >> 8;
+    master->tx_buf[master->tx_len++] = master->write_addr & 0xFF;
+    master->tx_buf[master->tx_len++] = master->write_qty >> 8;
+    master->tx_buf[master->tx_len++] = master->write_qty & 0xFF;
+    master->tx_buf[master->tx_len++] = master->write_qty * 2;
+
+    for (size_t i = 0; i < master->write_qty; i++)
+    {
+        master->tx_buf[master->tx_len++] = value[i] >> 8;
+        master->tx_buf[master->tx_len++] = value[i] & 0xFF;
+    }
+    if (master->master_send_receive(MODBUS_TIMEOUT) && master_validate_reply(master))
+    {
+        if (master->rx_buf[2] != (master->write_addr >> 8) || master->rx_buf[3] != (master->write_addr & 0xFF))
+        {
+            return 0;
+        }
+        if (master->rx_buf[4] != (master->write_qty >> 8) || master->rx_buf[5] != (master->write_qty & 0xFF))
+        {
+            return 0;
+        }
+        return 1;
+    }
+    return 0;
+}

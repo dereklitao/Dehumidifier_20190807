@@ -67,6 +67,7 @@ typedef struct
     void (*master_uart_idle)(void);
     void (*master_set_tx)(void);
     void (*master_set_rx)(void);
+    void (*master_trigger_write)(void);
 } modbus_master;
 
 typedef struct modbus_slave
@@ -120,6 +121,7 @@ uint8_t master_read_input_regs(modbus_master *master, uint16_t *result);
 uint8_t master_read_holding_regs(modbus_master *master, uint16_t *result);
 uint8_t master_write_single_coil(modbus_master *master, uint8_t *value);
 uint8_t master_write_single_holding_reg(modbus_master *master, uint16_t *value);
+uint8_t master_write_multi_holding_regs(modbus_master *master, uint16_t *value);
 
 void slave_handle_cmd(modbus_slave *slave);
 
@@ -127,8 +129,8 @@ void csro_master_aqi_init(UART_HandleTypeDef *Uart);
 void csro_master_aqi_read_task(void);
 
 void csro_master_cps_init(UART_HandleTypeDef *Uart);
-void csro_master_cps_read_task(void);
 void csro_master_cps_write_task(void);
+void csro_master_cps_read_task(void);
 
 void csro_slave_hmi_init(UART_HandleTypeDef *uart);
 void csro_slave_hmi_wait_cmd(void);
