@@ -58,6 +58,14 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define STEP4_Pin GPIO_PIN_2
+#define STEP4_GPIO_Port GPIOE
+#define STEP3_Pin GPIO_PIN_3
+#define STEP3_GPIO_Port GPIOE
+#define STEP2_Pin GPIO_PIN_4
+#define STEP2_GPIO_Port GPIOE
+#define STEP1_Pin GPIO_PIN_5
+#define STEP1_GPIO_Port GPIOE
 #define TH2H_Pin GPIO_PIN_2
 #define TH2H_GPIO_Port GPIOC
 #define TH2T_Pin GPIO_PIN_3
