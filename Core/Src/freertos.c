@@ -25,7 +25,7 @@
 #include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */     
+/* USER CODE BEGIN Includes */
 #include "csro_common.h"
 #include "gpio.h"
 #include "dac.h"
@@ -65,12 +65,12 @@ osThreadId Task06Handle;
 
 /* USER CODE END FunctionPrototypes */
 
-void Task01_cps_write_task(void const * argument);
-void Task02_cps_read_task(void const * argument);
-void Task03_hmi_wait_cmd_task(void const * argument);
-void Task04_aqi_read_task(void const * argument);
-void Task05_pwm_adc_dac_gpio_task(void const * argument);
-void Task06_misc_func_task(void const * argument);
+void Task01_cps_write_task(void const *argument);
+void Task02_cps_read_task(void const *argument);
+void Task03_hmi_wait_cmd_task(void const *argument);
+void Task04_aqi_read_task(void const *argument);
+void Task05_pwm_adc_dac_gpio_task(void const *argument);
+void Task06_misc_func_task(void const *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -79,7 +79,8 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
   * @param  None
   * @retval None
   */
-void MX_FREERTOS_Init(void) {
+void MX_FREERTOS_Init(void)
+{
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
@@ -128,7 +129,6 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
-
 }
 
 /* USER CODE BEGIN Header_Task01_cps_write_task */
@@ -138,15 +138,8 @@ void MX_FREERTOS_Init(void) {
   * @retval None
   */
 /* USER CODE END Header_Task01_cps_write_task */
-void Task01_cps_write_task(void const * argument)
+void Task01_cps_write_task(void const *argument)
 {
-    
-    
-    
-    
-    
-    
-    
 
   /* USER CODE BEGIN Task01_cps_write_task */
   csro_master_cps_init(&huart3);
@@ -165,7 +158,7 @@ void Task01_cps_write_task(void const * argument)
 * @retval None
 */
 /* USER CODE END Header_Task02_cps_read_task */
-void Task02_cps_read_task(void const * argument)
+void Task02_cps_read_task(void const *argument)
 {
   /* USER CODE BEGIN Task02_cps_read_task */
   /* Infinite loop */
@@ -184,7 +177,7 @@ void Task02_cps_read_task(void const * argument)
 * @retval None
 */
 /* USER CODE END Header_Task03_hmi_wait_cmd_task */
-void Task03_hmi_wait_cmd_task(void const * argument)
+void Task03_hmi_wait_cmd_task(void const *argument)
 {
   /* USER CODE BEGIN Task03_hmi_wait_cmd_task */
   csro_slave_hmi_init(&huart2);
@@ -203,15 +196,18 @@ void Task03_hmi_wait_cmd_task(void const * argument)
 * @retval None
 */
 /* USER CODE END Header_Task04_aqi_read_task */
-void Task04_aqi_read_task(void const * argument)
+void Task04_aqi_read_task(void const *argument)
 {
   /* USER CODE BEGIN Task04_aqi_read_task */
   csro_master_aqi_init(&huart1);
+  Csro_Stepper_Init();
   /* Infinite loop */
   for (;;)
   {
+    // osDelay(200);
+    // csro_master_aqi_read_task();
     osDelay(200);
-    csro_master_aqi_read_task();
+    Csro_Stepper_Set_Position(sys_regs.holdings[4]);
   }
   /* USER CODE END Task04_aqi_read_task */
 }
@@ -223,7 +219,7 @@ void Task04_aqi_read_task(void const * argument)
 * @retval None
 */
 /* USER CODE END Header_Task05_pwm_adc_dac_gpio_task */
-void Task05_pwm_adc_dac_gpio_task(void const * argument)
+void Task05_pwm_adc_dac_gpio_task(void const *argument)
 {
   /* USER CODE BEGIN Task05_pwm_adc_dac_gpio_task */
   HAL_DAC_Start(&hdac, DAC_CHANNEL_1);
@@ -305,7 +301,7 @@ void Task05_pwm_adc_dac_gpio_task(void const * argument)
 * @retval None
 */
 /* USER CODE END Header_Task06_misc_func_task */
-void Task06_misc_func_task(void const * argument)
+void Task06_misc_func_task(void const *argument)
 {
   /* USER CODE BEGIN Task06_misc_func_task */
   /* Infinite loop */

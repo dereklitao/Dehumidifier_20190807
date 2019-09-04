@@ -41,6 +41,7 @@
 "dehumidifier_20190807\heap_4.o"
 "dehumidifier_20190807\port.o"
 "dehumidifier_20190807\csro_common.o"
+"dehumidifier_20190807\csro_stepper.o"
 "dehumidifier_20190807\mb_crc.o"
 "dehumidifier_20190807\mb_master.o"
 "dehumidifier_20190807\mb_master_aqi.o"

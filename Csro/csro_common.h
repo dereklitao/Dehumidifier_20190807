@@ -20,4 +20,7 @@ extern csro_info sysinfo;
 float Csro_Calculate_ntc3950_Temperature_from_Resvalue(float res_value);
 float Csro_Calculate_ntc3380_Temperature_from_Resvalue(float res_value);
 
+void Csro_Stepper_Init(void);
+void Csro_Stepper_Set_Position(uint16_t position);
+
 #endif
