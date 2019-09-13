@@ -2,7 +2,7 @@
 
 modbus_master master_aqi;
 static osSemaphoreId uart_idle_sem;
-static osMutexId uart_source_mut;
+static osMutexId uart_aqi_source_mut;
 
 void master_aqi_set_tx(void)
 {
@@ -52,8 +52,8 @@ void csro_master_aqi_init(UART_HandleTypeDef *uart)
 {
     osSemaphoreDef(uart_idle_semaphore);
     uart_idle_sem = osSemaphoreCreate(osSemaphore(uart_idle_semaphore), 1);
-    osMutexDef(uart_source_mutex);
-    uart_source_mut = osMutexCreate(osMutex(uart_source_mutex));
+    osMutexDef(uart_aqi_source_mutex);
+    uart_aqi_source_mut = osMutexCreate(osMutex(uart_aqi_source_mutex));
     master_aqi.uart = uart;
     master_aqi.master_set_tx = master_aqi_set_tx;
     master_aqi.master_set_rx = master_aqi_set_rx;
@@ -65,7 +65,7 @@ void csro_master_aqi_init(UART_HandleTypeDef *uart)
 
 void csro_master_aqi_read_task(void)
 {
-    if (osMutexWait(uart_source_mut, osWaitForever) == osOK)
+    if (osMutexWait(uart_aqi_source_mut, osWaitForever) == osOK)
     {
         uint16_t result[10];
         master_aqi.slave_id = 0x10;
@@ -79,6 +79,6 @@ void csro_master_aqi_read_task(void)
             sys_regs.inputs[11] = result[4];
             sys_regs.inputs[12] = result[7];
         }
-        osMutexRelease(uart_source_mut);
+        osMutexRelease(uart_aqi_source_mut);
     }
 }

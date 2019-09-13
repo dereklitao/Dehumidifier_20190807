@@ -54,9 +54,13 @@ void master_write_cps_tim_callback(void const *argument)
 {
     static uint16_t count = 0;
     sys_regs.holding_flags[0x51] = 1;
-    sys_regs.holdings[0x51] = sys_regs.inputs[0x04];
-    sys_regs.holdings[0x52] = sys_regs.inputs[0x03];
-    sys_regs.holdings[0x53] = count++;
+    sys_regs.holdings[0x51] = sys_regs.inputs[0x00];
+    sys_regs.holdings[0x52] = sys_regs.inputs[0x01];
+    sys_regs.holdings[0x53] = 0;
+
+    sys_regs.inputs[0x2E] = sys_regs.holdings[0x51];
+    sys_regs.inputs[0x2F] = sys_regs.holdings[0x52];
+    sys_regs.inputs[0x30] = sys_regs.holdings[0x53];
     osSemaphoreRelease(write_cps_sem);
 }
 
@@ -118,7 +122,7 @@ void csro_master_cps_write_task(void)
                     sys_regs.holding_flags[0x36 + i] = 0;
                 }
             }
-            if (sys_regs.holdings[0x51] != 0)
+            if (sys_regs.holding_flags[0x51] != 0)
             {
                 master_cps.write_addr = 0x51;
                 master_cps.write_qty = 3;
@@ -132,6 +136,7 @@ void csro_master_cps_write_task(void)
 
 void csro_master_cps_read_task(void)
 {
+    static uint8_t init_flag = 0;
     if (osMutexWait(uart_source_mut, osWaitForever) == osOK)
     {
         uint16_t result[35];
@@ -172,11 +177,28 @@ void csro_master_cps_read_task(void)
         master_cps.read_qty = 4;
         if (master_read_holding_regs(&master_cps, result) == 1)
         {
-            for (uint8_t i = 0; i < 4; i++)
+            if (init_flag == 0)
             {
-                if (sys_regs.holding_flags[54 + i] == 0)
+                sys_regs.holdings[54] = 220;
+                sys_regs.holdings[55] = 10;
+                sys_regs.holdings[56] = 240;
+                sys_regs.holdings[57] = 10;
+
+                sys_regs.holding_flags[54] = 1;
+                sys_regs.holding_flags[55] = 1;
+                sys_regs.holding_flags[56] = 1;
+                sys_regs.holding_flags[57] = 1;
+                init_flag = 1;
+                osSemaphoreRelease(write_cps_sem);
+            }
+            else
+            {
+                for (uint8_t i = 0; i < 4; i++)
                 {
-                    sys_regs.holdings[54 + i] = result[i];
+                    if (sys_regs.holding_flags[54 + i] == 0)
+                    {
+                        sys_regs.holdings[54 + i] = result[i];
+                    }
                 }
             }
         }
